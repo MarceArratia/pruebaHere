@@ -9,7 +9,7 @@
  * @param {Function} getBubbleContent Function returning detailed information about photo
  * @param {Array.<Object>} data Raw data containing information about each photo
  */
-
+let firstPosition=0;
 function startClustering(map, ui, getBubbleContent, data) {
     var dataPoints = data.map(function (item) {
       return new H.clustering.DataPoint(item.latitude, item.longitude, null, item);
@@ -114,46 +114,46 @@ function startClustering(map, ui, getBubbleContent, data) {
   // Now use the map as required...
   moveMapToBerlin(map);
   
-  function moveMapToBerlin(map){
-    map.setCenter({lat: -33.595715, lng:-70.585197});
-    map.setZoom(16);
-  
+  function moveMapToBerlin(map,op,position){
+    if(op===1){
+      console.log(position);
+      map.setCenter({lat: position.coords.latitude , lng:position.coords.longitude});
+      map.setZoom(16);
+    }
+ 
+
   }
-  
   function circlePoint(time) {
     var radius = 0.01;
     var x = Math.cos(time) * radius;
     var y = Math.sin(time) * radius;
     return {lat:window.lat + y, lng:window.lng + x};
   };
- 
-  function getLocation() {
-    if (navigator.geolocation) {
-      setInterval(navigator.geolocation.getCurrentPosition(showPosition),3000);
-      /*navigator.geolocation.getCurrentPosition(showPosition);*/
-    } else { 
-      x.innerHTML = "Geolocation is not supported by this browser.";
-    }
-  
-  }
 
   function showMarker(){
-    let count=0;
+    navigator.geolocation.getCurrentPosition(showPosition);
+    loadPoint();
  setInterval(function(){navigator.geolocation.getCurrentPosition(showPosition);},3000);
 
   }
   var marker=0;
   var markerAnt=0;
   function showPosition(position){
+   
+   var icon= new H.map.Icon("./img/icon.gif", {
+      size: {w: 20, h: 20},
+      anchor: {x: 10, y: 10}
+    });
    if(marker === 0){
-    marker = new H.map.Marker({lat: position.coords.latitude , lng:position.coords.longitude});
+    marker = new H.map.Marker({lat: position.coords.latitude , lng:position.coords.longitude}, { icon: icon},{optimized:false});
     // Ensure that the marker can receive drag events
     marker.draggable = true;
     map.addObject(marker);
     markerAnt=marker;
+    moveMapToBerlin(map,1,position);
    }else{
      map.removeObject(markerAnt);
-     marker = new H.map.Marker({lat: position.coords.latitude , lng:position.coords.longitude});
+     marker = new H.map.Marker({lat: position.coords.latitude , lng:position.coords.longitude}, { icon: icon },{optimized:false});
      // Ensure that the marker can receive drag events
      marker.draggable = true;
      map.addObject(marker);
@@ -192,6 +192,8 @@ function startClustering(map, ui, getBubbleContent, data) {
   //
   //  The jQuery library is available under an MIT license  https://jquery.org/license/
   //
-  jQuery.getJSON("data/pointJson.json", function (data) {
-    startClustering(map, ui, getBubbleContent, data);
-  });
+  function loadPoint(){
+    jQuery.getJSON("data/pointJson.json", function (data) {
+      startClustering(map, ui, getBubbleContent, data);
+    });
+  }
