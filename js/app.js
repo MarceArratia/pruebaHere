@@ -126,7 +126,7 @@ function startClustering(map, ui, getBubbleContent, data) {
     var y = Math.sin(time) * radius;
     return {lat:window.lat + y, lng:window.lng + x};
   };
-  window.setInterval(navigator.geolocation.getCurrentPosition(showPosition),3000);
+ 
   function getLocation() {
     if (navigator.geolocation) {
       setInterval(navigator.geolocation.getCurrentPosition(showPosition),3000);
@@ -138,16 +138,27 @@ function startClustering(map, ui, getBubbleContent, data) {
   }
 
   function showMarker(){
+    let count=0;
  setInterval(function(){navigator.geolocation.getCurrentPosition(showPosition);},3000);
 
   }
-  
+  var marker=0;
+  var markerAnt=0;
   function showPosition(position){
-    var marker = new H.map.Marker({lat: position.coords.latitude , lng:position.coords.longitude});
+   if(marker === 0){
+    marker = new H.map.Marker({lat: position.coords.latitude , lng:position.coords.longitude});
     // Ensure that the marker can receive drag events
     marker.draggable = true;
     map.addObject(marker);
-    console.log("hola");
+    markerAnt=marker;
+   }else{
+     map.removeObject(markerAnt);
+     marker = new H.map.Marker({lat: position.coords.latitude , lng:position.coords.longitude});
+     // Ensure that the marker can receive drag events
+     marker.draggable = true;
+     map.addObject(marker);
+     markerAnt=marker;
+   }
   }
     
   function getBubbleContent(data) {
